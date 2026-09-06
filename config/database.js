@@ -5,7 +5,6 @@ dotenv.config();
 
 export const connectDB = () => {
     mongoose.connect(process.env.MONGO_DB_URL, {
-        dbName: "Re-Trade-Hub"
     })
         .then(() => console.log("Database Connected"))
         .catch((e) => {

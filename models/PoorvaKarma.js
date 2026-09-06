@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 const poorvaKarmaSchema = new mongoose.Schema({
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  
-  diagnosisList: { type: String }, // e.g. list of diseases from table
+
+  diagnosisList: { type: String },
 
   // Niruha Eligibility (from cha si 1/34 & cha si 2/14)
   niruhaEligibility: {
@@ -12,7 +12,7 @@ const poorvaKarmaSchema = new mongoose.Schema({
     continuousVomitingEtc: { type: Boolean },
     historyOfMiscarriageOrPregnant: { type: Boolean },
     uncontrolledDiabetesHypertensionCkd: { type: Boolean },
-    isEligible: { type: Boolean } // False if ANY of the above are true
+    isEligible: { type: Boolean }
   },
 
   // Anuvasana Eligibility (from cha si 2/17)
@@ -22,7 +22,7 @@ const poorvaKarmaSchema = new mongoose.Schema({
     diarrhoeaOrHardBowel: { type: Boolean },
     intestinalWormsPleehaEtc: { type: Boolean },
     aruchiPoisoningCoryzaEtc: { type: Boolean },
-    isEligible: { type: Boolean } // False if ANY of the above are true
+    isEligible: { type: Boolean }
   },
 
   // Pariksha
@@ -72,10 +72,9 @@ const poorvaKarmaSchema = new mongoose.Schema({
     malaSanga: { type: Boolean },
     aruchi: { type: Boolean },
     klama: { type: Boolean },
-    deepanPachanaRequired: { type: Boolean } // True if ANY of the above are true
+    deepanPachanaRequired: { type: Boolean }
   },
 
-  // Bala Assessment
   bala: { type: String, enum: ['Pravara', 'Madhyama', 'Avara'] }
 
 }, { timestamps: true });

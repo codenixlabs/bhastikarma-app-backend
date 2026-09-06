@@ -1,4 +1,5 @@
 import PoorvaKarma from '../models/PoorvaKarma.js';
+import Patient from '../models/Patient.js';
 
 // Helper function to get or create the PoorvaKarma document for a patient
 const getOrCreatePoorvaKarma = async (patientId, doctorId) => {
@@ -197,6 +198,34 @@ export const updateBala = async (req, res) => {
         pk.bala = req.body.bala;
         await pk.save();
         res.status(200).json({ success: true, bala: pk.bala });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Mark Poorva Karma as completed
+// @route   PUT /api/poorva-karma/:patientId/complete
+// @access  Private
+export const markPoorvaKarmaCompleted = async (req, res) => {
+    try {
+        const patient = await Patient.findById(req.params.patientId);
+        if (!patient) {
+            return res.status(404).json({ success: false, message: 'Patient not found' });
+        }
+        
+        // Ensure assessmentStatus exists
+        if (!patient.assessmentStatus) {
+            patient.assessmentStatus = {};
+        }
+
+        patient.assessmentStatus.poorvaKarmaCompleted = true;
+        await patient.save();
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Poorva Karma marked as completed', 
+            data: patient.assessmentStatus 
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

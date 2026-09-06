@@ -6,7 +6,8 @@ import {
     updateAgniAssessment,
     updateKosthaAssessment,
     updateSaamaNirama,
-    updateBala
+    updateBala,
+    markPoorvaKarmaCompleted
 } from '../controllers/poorvaKarmaController.js';
 import { protect, isDoctor } from '../middleware/auth.js';
 
@@ -24,5 +25,7 @@ router.put('/:patientId/agni', updateAgniAssessment);
 router.put('/:patientId/kostha', updateKosthaAssessment);
 router.put('/:patientId/saama-nirama', updateSaamaNirama);
 router.put('/:patientId/bala', updateBala);
+
+router.put('/:patientId/complete', markPoorvaKarmaCompleted);
 
 export default router;

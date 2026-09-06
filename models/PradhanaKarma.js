@@ -60,9 +60,10 @@ const pradhanaKarmaSchema = new mongoose.Schema({
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   
-  bastiType: { type: String }, 
-  bastiDravyaDoseAndFormulation: { type: String },
-  scheduleOfBasti: { type: String },
+  diseaseId: { type: String, ref: 'Disease' },
+  bastiPatternCode: { type: String, ref: 'BastiPattern' },
+  bastiFormulationId: { type: String, ref: 'BastiFormulation' },
+  customNotesOnDose: { type: String }, // For custom adjustments made by doctor
   
   observation: {
     adanakala: { type: String },

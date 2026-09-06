@@ -5,7 +5,9 @@ import cloudinaryConnect from "./config/cloudinary.js";
 import fileUpload from "express-fileupload";
 import patientRoutes from "./routes/patientRoutes.js";
 import poorvaKarmaRoutes from "./routes/poorvaKarmaRoutes.js";
+import pradhanaKarmaRoutes from "./routes/pradhanaKarmaRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import masterDataRoutes from "./routes/masterDataRoutes.js";
 
 const app = express();
 
@@ -25,7 +27,9 @@ app.use(fileUpload({
 
 app.use("/api/patients", patientRoutes);
 app.use("/api/poorva-karma", poorvaKarmaRoutes);
+app.use("/api/pradhana-karma", pradhanaKarmaRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/master", masterDataRoutes);
 
 app.get("/", (req, res) => {
     return res.json({
