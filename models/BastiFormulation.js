@@ -12,6 +12,7 @@ const bastiFormulationSchema = new mongoose.Schema({
   referencedCondition: { type: String },
   unresolvedReference: { type: Boolean },
   classicalReferenceIds: [{ type: String }],
+  diseaseIds: [{ type: String, ref: 'Disease' }],
   sourceText: { type: String },
   recipeCompleteness: { type: String },
   ingredients: [{
