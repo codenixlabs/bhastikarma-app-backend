@@ -6,6 +6,7 @@ import fileUpload from "express-fileupload";
 import patientRoutes from "./routes/patientRoutes.js";
 import poorvaKarmaRoutes from "./routes/poorvaKarmaRoutes.js";
 import pradhanaKarmaRoutes from "./routes/pradhanaKarmaRoutes.js";
+import paschatKarmaRoutes from "./routes/paschatKarmaRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import masterDataRoutes from "./routes/masterDataRoutes.js";
 
@@ -28,6 +29,7 @@ app.use(fileUpload({
 app.use("/api/patients", patientRoutes);
 app.use("/api/poorva-karma", poorvaKarmaRoutes);
 app.use("/api/pradhana-karma", pradhanaKarmaRoutes);
+app.use("/api/paschata-karma", paschatKarmaRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/master", masterDataRoutes);
 
