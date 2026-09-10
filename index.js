@@ -26,6 +26,20 @@ app.use(fileUpload({
     tempFileDir: '/tmp/'
 }));
 
+import rateLimit from "express-rate-limit";
+
+// Global rate limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, 
+  legacyHeaders: false, 
+  message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' }
+});
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter);
+
 app.use("/api/patients", patientRoutes);
 app.use("/api/poorva-karma", poorvaKarmaRoutes);
 app.use("/api/pradhana-karma", pradhanaKarmaRoutes);
