@@ -3,12 +3,57 @@ import OTP from '../models/OTP.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+// @desc    Generate and send an OTP
+// @route   POST /api/auth/send-otp
+// @access  Public
+export const sendOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required' });
+        }
+
+        // Check if user already exists
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ success: false, message: 'User already exists' });
+        }
+
+        // Generate 6-digit OTP
+        let otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Check if OTP is unique (edge case)
+        let result = await OTP.findOne({ otp: otp });
+        while (result) {
+            otp = Math.floor(100000 + Math.random() * 900000).toString();
+            result = await OTP.findOne({ otp: otp });
+        }
+
+        const otpPayload = { email, otp };
+        // The pre-save hook in OTP model will automatically send the email
+        await OTP.create(otpPayload);
+
+        res.status(200).json({
+            success: true,
+            message: 'OTP sent successfully'
+        });
+    } catch (error) {
+        console.error('Send OTP error:', error);
+        res.status(500).json({ success: false, message: 'Failed to send OTP' });
+    }
+};
+
 // @desc    Register a new user
 // @route   POST /api/auth/signup
 // @access  Public
 export const signup = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, otp } = req.body;
+
+        if (!name || !email || !password || !otp) {
+            return res.status(400).json({ success: false, message: 'All fields are required (name, email, password, otp)' });
+        }
 
         // Check if user exists
         const userExists = await User.findOne({ email });
@@ -17,6 +62,15 @@ export const signup = async (req, res) => {
                 success: false,
                 message: 'User already exists'
             });
+        }
+
+        // Find the most recent OTP for the email
+        const recentOtp = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+        
+        if (recentOtp.length === 0) {
+            return res.status(400).json({ success: false, message: 'OTP not found. Please request a new OTP.' });
+        } else if (recentOtp[0].otp !== otp) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP' });
         }
 
         // Hash password
