@@ -230,3 +230,24 @@ export const markPoorvaKarmaCompleted = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// @desc    Get Poorva Karma for a patient
+// @route   GET /api/poorva-karma/:patientId
+// @access  Private/Doctor
+export const getPoorvaKarma = async (req, res) => {
+    try {
+        const { patientId } = req.params;
+        const pk = await PoorvaKarma.findOne({ patientId })
+            .populate('patientId', 'demographics.fullName')
+            .populate('doctorId', 'name');
+
+        if (!pk) {
+            return res.status(404).json({ success: false, message: 'Poorva Karma record not found for this patient' });
+        }
+
+        res.status(200).json({ success: true, data: pk });
+    } catch (error) {
+        console.error(`Error in getPoorvaKarma: ${error.message}`);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
+};

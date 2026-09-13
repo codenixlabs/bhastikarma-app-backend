@@ -7,7 +7,8 @@ import {
     updateKosthaAssessment,
     updateSaamaNirama,
     updateBala,
-    markPoorvaKarmaCompleted
+    markPoorvaKarmaCompleted,
+    getPoorvaKarma
 } from '../controllers/poorvaKarmaController.js';
 import { protect, isDoctor } from '../middleware/auth.js';
 
@@ -18,6 +19,7 @@ router.use(protect);
 router.use(isDoctor);
 
 // All routes require the patientId parameter in the URL
+router.get('/:patientId', getPoorvaKarma);
 router.put('/:patientId/niruha', updateNiruhaEligibility);
 router.put('/:patientId/anuvasana', updateAnuvasanaEligibility);
 router.put('/:patientId/pariksha', updatePariksha);

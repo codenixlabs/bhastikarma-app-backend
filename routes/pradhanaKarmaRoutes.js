@@ -3,7 +3,8 @@ import {
     createOrUpdatePradhanaKarma,
     addDailyObservation,
     updateDailyObservation,
-    markPradhanaKarmaCompleted
+    markPradhanaKarmaCompleted,
+    getPradhanaKarma
 } from '../controllers/pradhanaKarmaController.js';
 import { protect, isDoctor } from '../middleware/auth.js';
 
@@ -14,6 +15,7 @@ router.use(protect);
 router.use(isDoctor);
 
 // All routes require the patientId parameter in the URL
+router.get('/:patientId', getPradhanaKarma);
 router.put('/:patientId', createOrUpdatePradhanaKarma);
 router.post('/:patientId/observations', addDailyObservation);
 router.put('/:patientId/observations/:day', updateDailyObservation);

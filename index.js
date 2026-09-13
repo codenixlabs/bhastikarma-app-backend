@@ -9,6 +9,8 @@ import pradhanaKarmaRoutes from "./routes/pradhanaKarmaRoutes.js";
 import paschatKarmaRoutes from "./routes/paschatKarmaRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import masterDataRoutes from "./routes/masterDataRoutes.js";
+import resourceRoutes from "./routes/resourceRoutes.js";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
@@ -26,18 +28,14 @@ app.use(fileUpload({
     tempFileDir: '/tmp/'
 }));
 
-import rateLimit from "express-rate-limit";
-
-// Global rate limiter
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  windowMs: 15 * 60 * 1000, 
+  max: 100,
   standardHeaders: true, 
   legacyHeaders: false, 
   message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 
-// Apply the rate limiting middleware to all requests
 app.use(limiter);
 
 app.use("/api/patients", patientRoutes);
@@ -46,6 +44,7 @@ app.use("/api/pradhana-karma", pradhanaKarmaRoutes);
 app.use("/api/paschata-karma", paschatKarmaRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/master", masterDataRoutes);
+app.use("/api/resources", resourceRoutes);
 
 app.get("/", (req, res) => {
     return res.json({

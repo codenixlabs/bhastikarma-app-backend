@@ -146,3 +146,26 @@ export const markPradhanaKarmaCompleted = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// @desc    Get Pradhana Karma for a patient
+// @route   GET /api/pradhana-karma/:patientId
+// @access  Private/Doctor
+export const getPradhanaKarma = async (req, res) => {
+    try {
+        const { patientId } = req.params;
+        const pk = await PradhanaKarma.findOne({ patientId })
+            .populate('patientId', 'demographics.fullName')
+            .populate('doctorId', 'name')
+            .populate('diseaseId', 'diseaseName')
+            .populate('bastiFormulationId', 'formulationName');
+
+        if (!pk) {
+            return res.status(404).json({ success: false, message: 'Pradhana Karma record not found for this patient' });
+        }
+
+        res.status(200).json({ success: true, data: pk });
+    } catch (error) {
+        console.error(`Error in getPradhanaKarma: ${error.message}`);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
+};
