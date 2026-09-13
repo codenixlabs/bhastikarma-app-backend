@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import OTP from '../models/OTP.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -209,5 +210,111 @@ export const updateProfile = async (req, res) => {
             message: 'Server error during profile update',
             error: error.message
         });
+    }
+};
+
+// @desc    Send Forgot Password OTP
+// @route   POST /api/auth/forgot-password
+// @access  Public
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Generate 6-digit OTP
+        let otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await OTP.create({ email, otp });
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset OTP sent successfully'
+        });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ success: false, message: 'Server error during forgot password' });
+    }
+};
+
+// @desc    Verify OTP for Password Reset
+// @route   POST /api/auth/verify-reset-otp
+// @access  Public
+export const verifyResetOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+        }
+
+        // Find recent OTP
+        const recentOtp = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+        
+        if (recentOtp.length === 0) {
+            return res.status(400).json({ success: false, message: 'OTP expired or not found' });
+        } else if (recentOtp[0].otp !== otp) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP' });
+        }
+
+        // Generate a temporary reset token valid for 15 minutes
+        const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+        res.status(200).json({
+            success: true,
+            message: 'OTP verified successfully',
+            data: { resetToken }
+        });
+    } catch (error) {
+        console.error('Verify reset OTP error:', error);
+        res.status(500).json({ success: false, message: 'Server error during OTP verification' });
+    }
+};
+
+// @desc    Reset Password using Reset Token
+// @route   POST /api/auth/reset-password
+// @access  Public
+export const resetPassword = async (req, res) => {
+    try {
+        const { email, resetToken, newPassword } = req.body;
+
+        if (!email || !resetToken || !newPassword) {
+            return res.status(400).json({ success: false, message: 'Email, reset token, and new password are required' });
+        }
+
+        // Verify the reset token
+        try {
+            const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+            if (decoded.email !== email) {
+                return res.status(400).json({ success: false, message: 'Invalid token for this email' });
+            }
+        } catch (err) {
+            return res.status(400).json({ success: false, message: 'Reset token expired or invalid' });
+        }
+
+        // Update user password
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset successfully'
+        });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ success: false, message: 'Server error during reset password' });
     }
 };
