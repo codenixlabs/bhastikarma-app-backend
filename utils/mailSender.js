@@ -1,33 +1,18 @@
-import nodemailer from "nodemailer";
-import dns from "dns";
+import { Resend } from 'resend';
 
-dns.setDefaultResultOrder("ipv4first");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const mailSender = async (email, title, body) => {
     try {
-        const port = Number(process.env.MAIL_PORT);
-        const isSecure = String(process.env.MAIL_SECURE).trim() === 'true';
-
-        let transporter = nodemailer.createTransport({
-            host: process.env.MAIL_HOST || "smtp.gmail.com",
-            port: port,
-            secure: isSecure, // Port 465 MUST be secure (true)
-            auth: {
-                user: process.env.MAIL_USER,
-                pass: process.env.MAIL_PASS,
-            },
-            logger: true, 
+        const data = await resend.emails.send({
+            from: `Bhastikarma App <${process.env.MAIL_USER}>`, 
+            to: email,
+            subject: title,
+            html: body,
         });
 
-        let info = await transporter.sendMail({
-            from: `Bhastikarma App <${process.env.MAIL_USER}>`,
-            to: `${email}`,
-            subject: `${title}`,
-            html: `${body}`,
-        });
-
-        console.log(info);
-        return info;
+        console.log("Email sent successfully via Resend: ", data);
+        return data;
     } catch (error) {
         console.log("Error inside mailSender:", error.message);
         throw error;
