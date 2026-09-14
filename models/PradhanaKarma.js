@@ -3,6 +3,14 @@ import mongoose from 'mongoose';
 const dailyObservationSchema = new mongoose.Schema({
   day: { type: Number, required: true },
   
+  // Schedule state fields
+  date: { type: Date },
+  bastiType: { type: String, enum: ['A', 'N'] },
+  status: { type: String, enum: ['PENDING', 'COMPLETED', 'MISSED'], default: 'PENDING' },
+  dose: { type: String }, // Calculated dose used for this session
+  timeAdministered: { type: String },
+  notes: { type: String },
+  
   // Niruha Samyak
   prasristaVinaMutra: { type: Boolean },
   sameerantwama: { type: Boolean },
@@ -64,6 +72,13 @@ const pradhanaKarmaSchema = new mongoose.Schema({
   bastiPatternCode: { type: String, ref: 'BastiPattern' },
   bastiFormulationId: { type: String, ref: 'BastiFormulation' },
   customNotesOnDose: { type: String }, // For custom adjustments made by doctor
+  
+  // Treatment tracking state (snapshots and progress)
+  treatmentStatus: { type: String, enum: ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ABORTED'], default: 'PLANNED' },
+  startDate: { type: Date },
+  patternName: { type: String }, // Snapshot from BastiPattern
+  totalDays: { type: Number },   // Snapshot from BastiPattern
+  sequence: [{ type: String }],  // Snapshot from BastiPattern (e.g. ['A', 'N', 'A'])
   
   observation: {
     adanakala: { type: String },

@@ -1,5 +1,6 @@
 import PradhanaKarma from '../models/PradhanaKarma.js';
 import Patient from '../models/Patient.js';
+import BastiPattern from '../models/BastiPattern.js';
 
 // Helper function to get or create the PradhanaKarma document for a patient
 const getOrCreatePradhanaKarma = async (patientId, doctorId) => {
@@ -24,13 +25,46 @@ export const createOrUpdatePradhanaKarma = async (req, res) => {
             bastiPatternCode,
             bastiFormulationId,
             customNotesOnDose, 
-            observation 
+            observation,
+            startDate,
+            treatmentStatus
         } = req.body;
 
         if (diseaseId) pk.diseaseId = diseaseId;
-        if (bastiPatternCode) pk.bastiPatternCode = bastiPatternCode;
+        if (bastiPatternCode) {
+            pk.bastiPatternCode = bastiPatternCode;
+            const pattern = await BastiPattern.findOne({ code: bastiPatternCode });
+            if (pattern) {
+                pk.patternName = pattern.name;
+                pk.totalDays = pattern.totalDays;
+                pk.sequence = pattern.sequence;
+            }
+        }
         if (bastiFormulationId) pk.bastiFormulationId = bastiFormulationId;
         if (customNotesOnDose) pk.customNotesOnDose = customNotesOnDose;
+        if (startDate) pk.startDate = startDate;
+        if (treatmentStatus) pk.treatmentStatus = treatmentStatus;
+        
+        // Generate schedule if startDate and sequence are available, and schedule hasn't been generated yet
+        if (pk.startDate && pk.sequence && pk.sequence.length > 0 && 
+            (!pk.observation || !pk.observation.dailyObservations || pk.observation.dailyObservations.length === 0)) {
+            
+            if (!pk.observation) pk.observation = { dailyObservations: [] };
+            if (!pk.observation.dailyObservations) pk.observation.dailyObservations = [];
+            
+            const start = new Date(pk.startDate);
+            for (let i = 0; i < pk.sequence.length; i++) {
+                const sessionDate = new Date(start);
+                sessionDate.setDate(start.getDate() + i);
+                
+                pk.observation.dailyObservations.push({
+                    day: i + 1,
+                    date: sessionDate,
+                    bastiType: pk.sequence[i],
+                    status: 'PENDING'
+                });
+            }
+        }
         
         if (observation) {
             if (!pk.observation) pk.observation = {};
@@ -79,6 +113,11 @@ export const addDailyObservation = async (req, res) => {
             // Add new day
             pk.observation.dailyObservations.push(observationData);
         }
+        
+        // Update treatmentStatus if a session is marked completed
+        if (observationData.status === 'COMPLETED' && pk.treatmentStatus === 'PLANNED') {
+            pk.treatmentStatus = 'IN_PROGRESS';
+        }
 
         await pk.save();
         res.status(200).json({ success: true, data: pk.observation.dailyObservations });
@@ -111,6 +150,11 @@ export const updateDailyObservation = async (req, res) => {
             ...req.body,
             day: day // ensure day isn't changed
         };
+        
+        // Update treatmentStatus if a session is marked completed
+        if (req.body.status === 'COMPLETED' && pk.treatmentStatus === 'PLANNED') {
+            pk.treatmentStatus = 'IN_PROGRESS';
+        }
 
         await pk.save();
         res.status(200).json({ success: true, data: pk.observation.dailyObservations[observationIndex] });
@@ -161,6 +205,10 @@ export const getPradhanaKarma = async (req, res) => {
 
         if (!pk) {
             return res.status(404).json({ success: false, message: 'Pradhana Karma record not found for this patient' });
+        }
+        
+        if (pk.observation && pk.observation.dailyObservations) {
+            pk.observation.dailyObservations.sort((a, b) => a.day - b.day);
         }
 
         res.status(200).json({ success: true, data: pk });
