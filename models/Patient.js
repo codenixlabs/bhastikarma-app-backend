@@ -46,9 +46,10 @@ const patientSchema = new mongoose.Schema({
   },
 
   // Menstrual & Obstetric History
-  menstrualAndObstetricHistory: {
-    numberOfDelivery: { type: String },
-    abortion: { type: String },
+  femaleHistory: {
+    menstrualHistory: { type: String },
+    numberOfDeliveries: { type: Number },
+    abortion: { type: Number },
     surgicalIntervention: { type: String }
   },
 
