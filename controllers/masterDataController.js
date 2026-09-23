@@ -40,7 +40,10 @@ export const getFormulationsByDisease = async (req, res) => {
   try {
     const { diseaseId } = req.params;
     
-    const formulations = await BastiFormulation.find({ diseaseIds: diseaseId });
+    const mappings = await DiseaseBastiMapping.find({ diseaseId }).lean();
+    const bastiIds = mappings.map(m => m.bastiId);
+    
+    const formulations = await BastiFormulation.find({ id: { $in: bastiIds } });
         
     res.status(200).json({ success: true, count: formulations.length, data: formulations });
   } catch (error) {

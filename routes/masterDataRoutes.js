@@ -1,8 +1,8 @@
-import { 
+import {
   getPatterns,
   getDoseRules,
   getDiseases,
-  getFormulationsByDisease
+  getFormulationsByDisease,
 } from '../controllers/masterDataController.js';
 import express from 'express';
 import { protect } from '../middleware/auth.js';
