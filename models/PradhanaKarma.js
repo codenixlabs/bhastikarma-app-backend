@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const dailyObservationSchema = new mongoose.Schema({
   day: { type: Number, required: true },
-  
+
   // Schedule state fields
   date: { type: Date },
   bastiType: { type: String, enum: ['A', 'N'] },
@@ -10,7 +10,7 @@ const dailyObservationSchema = new mongoose.Schema({
   dose: { type: String }, // Calculated dose used for this session
   timeAdministered: { type: String },
   notes: { type: String },
-  
+
   // Niruha Samyak
   prasristaVinaMutra: { type: Boolean },
   sameerantwama: { type: Boolean },
@@ -20,7 +20,7 @@ const dailyObservationSchema = new mongoose.Schema({
   rogashanti: { type: Boolean },
   prakriti: { type: Boolean },
   bala: { type: Boolean },
-  
+
   // Anuvasana Samyak
   sapurishaSnehaPratyeti: { type: Boolean },
   shariraLaghavta: { type: Boolean },
@@ -32,8 +32,8 @@ const dailyObservationSchema = new mongoose.Schema({
   siroHridGudaVedana: { type: Boolean },
   sopha: { type: Boolean },
   pratishyaya: { type: Boolean },
-  vikartika: { type: Boolean }, 
-  hrullasa: { type: Boolean }, 
+  vikartika: { type: Boolean },
+  hrullasa: { type: Boolean },
   marutaSanga: { type: Boolean },
   mutraSanga: { type: Boolean },
   shvaskashta: { type: Boolean },
@@ -60,26 +60,35 @@ const dailyObservationSchema = new mongoose.Schema({
 
   // Anuvasana Atiyoga
   moha: { type: Boolean },
+  kalma: { type: Boolean },
   sada: { type: Boolean },
-  murchha: { type: Boolean }
+  murchha: { type: Boolean },
+
+  // Daily Paschata Karma (independent of the overall PaschataKarma model)
+  paschataKarma: {
+    vyapadaAndManagement: {
+      niruhaVyapada: { type: String, enum: ['ayoga', 'atiyoga', 'klama', 'adhmana', 'hikka', 'hadprapti', 'udavarta', 'pravahika', 'shiroArti', 'angaArti', 'parikartika', 'parisrava', 'none', ''] },
+      anuvasanaVyapada: { type: String, enum: ['vatavrutaSneha', 'pittavrutaSneha', 'kaphavrutaSneha', 'annaVrutaSneha', 'purishaVrutaSneha', 'abhuktaPranita', 'none', ''] }
+    }
+  }
 }, { _id: false });
 
 const pradhanaKarmaSchema = new mongoose.Schema({
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  
+
   diseaseId: { type: String, ref: 'Disease' },
   bastiPatternCode: { type: String, ref: 'BastiPattern' },
   bastiFormulationId: { type: String, ref: 'BastiFormulation' },
   customNotesOnDose: { type: String }, // For custom adjustments made by doctor
-  
+
   // Treatment tracking state (snapshots and progress)
   treatmentStatus: { type: String, enum: ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ABORTED'], default: 'PLANNED' },
   startDate: { type: Date },
   patternName: { type: String }, // Snapshot from BastiPattern
   totalDays: { type: Number },   // Snapshot from BastiPattern
   sequence: [{ type: String }],  // Snapshot from BastiPattern (e.g. ['A', 'N', 'A'])
-  
+
   observation: {
     adanakala: { type: String },
     pratyagamanaKala: { type: String },

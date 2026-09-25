@@ -1,5 +1,9 @@
 import Patient from '../models/Patient.js';
+import PoorvaKarma from '../models/PoorvaKarma.js';
+import PradhanaKarma from '../models/PradhanaKarma.js';
+import PaschataKarma from '../models/PaschataKarma.js';
 import { uploadFileToCloudinary } from '../utils/fileUploader.js';
+import { generatePatientPDF } from '../utils/pdfGenerator.js';
 
 // @desc    Create a new patient
 // @route   POST /api/patients
@@ -109,3 +113,49 @@ export const deletePatient = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
+
+// @desc    Download patient PDF report
+// @route   GET /api/patients/:id/pdf
+// @access  Private (Doctor/Admin)
+export const downloadPatientReport = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+
+        // Fetch patient details from DB
+        const patient = await Patient.findOne({ _id: patientId }).populate('doctorId', 'name');
+        if (!patient) {
+            return res.status(404).json({ success: false, message: 'Patient not found or unauthorized' });
+        }
+
+        // Fetch Assessments
+        const poorvaKarma = await PoorvaKarma.findOne({ patientId }).lean();
+        const pradhanaKarma = await PradhanaKarma.findOne({ patientId }).lean();
+        const paschataKarma = await PaschataKarma.findOne({ patientId }).lean();
+
+        const fullPatientData = {
+            ...patient.toObject(),
+            poorvaKarma,
+            pradhanaKarma,
+            paschataKarma
+        };
+
+        // Generate PDF
+        const pdfBuffer = await generatePatientPDF(fullPatientData);
+
+        const safeFilename = (patient.demographics?.fullName || 'Patient').replace(/\s+/g, '_') + "_Report.pdf";
+
+        // Set response headers for file download
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${safeFilename}"`,
+            'Content-Length': pdfBuffer.length
+        });
+
+        // Send the PDF
+        res.end(pdfBuffer);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        res.status(500).json({ success: false, message: 'Failed to generate PDF' });
+    }
+};
+

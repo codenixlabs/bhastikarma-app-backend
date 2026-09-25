@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Medical Report</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            padding: 20px;
+            color: #333;
+            line-height: 1.4;
+            font-size: 12px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header-logo img {
+            max-height: 80px;
+            max-width: 150px;
+        }
+
+        .header-text {
+            text-align: right;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .header-text p {
+            margin: 5px 0 0 0;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-left: 5px solid #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f1f3f5;
+            width: 30%;
+            color: #495057;
+            font-weight: bold;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        /* Utility classes */
+        .page-break {
+            page-break-before: always;
+        }
+
+        .true-icon {
+            color: green;
+            font-weight: bold;
+        }
+
+        .false-icon {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-logo">
+            <img src="https://res.cloudinary.com/ujwugepe/image/upload/v1789296689/image.png" alt="Bastikarma Logo" />
+        </div>
+        <div class="header-text">
+            <h1>Patient Medical Report</h1>
+            <% if (patient.doctorId && patient.doctorId.name) { %>
+                <p style="font-size: 14px; font-weight: bold; color: #2c3e50; margin-top: 5px;">Treating Doctor: Dr. <%=
+                        patient.doctorId.name %>
+                </p>
+                <% } %>
+                    <p>Report Generated: <%= new Date().toLocaleDateString() %>
+                    </p>
+        </div>
+    </div>
+
+    <div class="two-col-grid">
+        <!-- Demographics -->
+        <% if (patient.demographics) { %>
+            <div class="section">
+                <div class="section-title">Demographics</div>
+                <table>
+                    <tr>
+                        <th>Full Name</th>
+                        <td>
+                            <%= patient.demographics.fullName %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Age / Sex</th>
+                        <td>
+                            <%= patient.demographics.age %> / <%= patient.demographics.sex %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Phone No</th>
+                        <td>
+                            <%= patient.demographics.phoneNo || 'N/A' %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Address</th>
+                        <td>
+                            <%= patient.demographics.address || 'N/A' %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Occupation</th>
+                        <td>
+                            <%= patient.demographics.occupation || 'N/A' %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Religion / Marital Status</th>
+                        <td>
+                            <%= patient.demographics.religion || 'N/A' %> / <%= patient.demographics.maritalStatus
+                                    || 'N/A' %>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <% } %>
+
+                <!-- Hospital Info -->
+                <% if (patient.hospitalInfo) { %>
+                    <div class="section">
+                        <div class="section-title">Hospital Information</div>
+                        <table>
+                            <tr>
+                                <th>Admission Type</th>
+                                <td>
+                                    <%= patient.hospitalInfo.admissionType || 'N/A' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>OPD / IPD Number</th>
+                                <td>
+                                    <%= patient.hospitalInfo.opdNumber || 'N/A' %> / <%= patient.hospitalInfo.ipdNumber
+                                            || 'N/A' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Clinical Disease Selection</th>
+                                <td>
+                                    <%= patient.hospitalInfo.clinicalDiseaseSelection || 'N/A' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Custom Diagnosis</th>
+                                <td>
+                                    <%= patient.hospitalInfo.customDiagnosis || 'N/A' %>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <% } %>
+
+                        <!-- Personal History -->
+                        <% if (patient.personalHistory) { %>
+                            <div class="section">
+                                <div class="section-title">Personal History</div>
+                                <table>
+                                    <tr>
+                                        <th>Ahara / Vihara</th>
+                                        <td>
+                                            <%= patient.personalHistory.ahara || 'N/A' %> / <%=
+                                                    patient.personalHistory.vihara || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Addiction</th>
+                                        <td>
+                                            <%= patient.personalHistory.addiction || 'None' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Bowel Habits</th>
+                                        <td>
+                                            <%= patient.personalHistory.bowelHabits || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nidra (Sleep)</th>
+                                        <td>
+                                            <%= patient.personalHistory.nidra || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Urine Frequency</th>
+                                        <td>
+                                            <%= patient.personalHistory.urineFrequency || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Blood Group</th>
+                                        <td>
+                                            <%= patient.personalHistory.bloodGroup || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <% } %>
+
+                                <!-- Female History -->
+                                <% if (patient.demographics && patient.demographics.sex==='Female' &&
+                                    patient.femaleHistory) { %>
+                                    <div class="section">
+                                        <div class="section-title">Female History</div>
+                                        <table>
+                                            <tr>
+                                                <th>Menstrual History</th>
+                                                <td>
+                                                    <%= patient.femaleHistory.menstrualHistory || 'N/A' %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Deliveries / Abortions</th>
+                                                <td>
+                                                    <%= patient.femaleHistory.numberOfDeliveries || 0 %> / <%=
+                                                            patient.femaleHistory.abortion || 0 %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Surgical Intervention</th>
+                                                <td>
+                                                    <%= patient.femaleHistory.surgicalIntervention || 'N/A' %>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <% } %>
+    </div>
+
+    <!-- Clinical Information -->
+    <% if (patient.ClinicalInformation) { %>
+        <div class="section">
+            <div class="section-title">Clinical Information & Investigations</div>
+            <table>
+                <tr>
+                    <th>Chief Complaints</th>
+                    <td>
+                        <%= patient.ClinicalInformation.chiefComplaints %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>History of Present Illness</th>
+                    <td>
+                        <%= patient.ClinicalInformation.historyOfPresentIllness || 'N/A' %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>History of Past Illness</th>
+                    <td>
+                        <%= patient.ClinicalInformation.historyOfPastIllness || 'N/A' %>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Family History</th>
+                    <td>
+                        <%= patient.ClinicalInformation.familyHistory || 'N/A' %>
+                    </td>
+                </tr>
+                <% if (patient.investigations) { %>
+                    <tr>
+                        <th>Pathological / Radiological</th>
+                        <td>
+                            <%= patient.investigations.pathologicalRadiological || 'N/A' %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Treatment Given</th>
+                        <td>
+                            <%= patient.investigations.treatmentGiven || 'N/A' %>
+                        </td>
+                    </tr>
+                    <% } %>
+            </table>
+        </div>
+        <% } %>
+
+            <div class="two-col-grid">
+                <!-- General Examination -->
+                <% if (patient.generalExamination) { %>
+                    <div class="section">
+                        <div class="section-title">General Examination</div>
+                        <table>
+                            <tr>
+                                <th>Blood Pressure / HR</th>
+                                <td>
+                                    <%= patient.generalExamination.bp || 'N/A' %> / <%= patient.generalExamination.hr
+                                            || 'N/A' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Resp. Rate / Temp</th>
+                                <td>
+                                    <%= patient.generalExamination.rr || 'N/A' %> / <%=
+                                            patient.generalExamination.temperature || 'N/A' %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Weight / Height / BMI</th>
+                                <td>
+                                    <%= patient.generalExamination.weight || 'N/A' %> kg / <%=
+                                            patient.generalExamination.height || 'N/A' %> cm / <%=
+                                                patient.generalExamination.bmi || 'N/A' %>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <% } %>
+
+                        <!-- Rogi Pariksha -->
+                        <% if (patient.rogiPariksha) { %>
+                            <div class="section">
+                                <div class="section-title">Rogi Pariksha</div>
+                                <table>
+                                    <tr>
+                                        <th>Prakriti / Desha</th>
+                                        <td>
+                                            <%= patient.rogiPariksha.prakriti || 'N/A' %> / <%=
+                                                    patient.rogiPariksha.desha || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Sarataha / Sanhanan</th>
+                                        <td>
+                                            <%= patient.rogiPariksha.sarataha || 'N/A' %> / <%=
+                                                    patient.rogiPariksha.sanhanan || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Pramana / Satva</th>
+                                        <td>
+                                            <%= patient.rogiPariksha.pramana || 'N/A' %> / <%=
+                                                    patient.rogiPariksha.satva || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Satmya / Vaya</th>
+                                        <td>
+                                            <%= patient.rogiPariksha.satmya || 'N/A' %> / <%= patient.rogiPariksha.vaya
+                                                    || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Ahara / Vyayama Shakti</th>
+                                        <td>
+                                            <%= patient.rogiPariksha.aharaShakti || 'N/A' %> / <%=
+                                                    patient.rogiPariksha.vyayamaShakti || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Jihwa</th>
+                                        <td>
+                                            <%= patient.rogiPariksha.jihwa || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <% } %>
+            </div>
+
+            <!-- POORVA KARMA -->
+            <div class="page-break"></div>
+            <div class="header">
+                <h2>Assessment Details</h2>
+            </div>
+
+            <% if (patient.poorvaKarma) { %>
+                <div class="section">
+                    <div class="section-title">Poorva Karma (Pre-Operative)</div>
+                    <table>
+                        <tr>
+                            <th>Diagnosis List</th>
+                            <td>
+                                <%= patient.poorvaKarma.diagnosisList || 'N/A' %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Agni Assessment</th>
+                            <td>
+                                Score: <%= patient.poorvaKarma.agniAssessment?.totalScore || 'N/A' %> |
+                                    Type: <%= patient.poorvaKarma.agniAssessment?.agniType || 'N/A' %> <br>
+                                        Recommended Drugs: <%= patient.poorvaKarma.agniAssessment?.recommendedDrugs
+                                            || 'N/A' %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Kostha Assessment</th>
+                            <td>
+                                Score: <%= patient.poorvaKarma.kosthaAssessment?.totalScore || 'N/A' %> |
+                                    Type: <%= patient.poorvaKarma.kosthaAssessment?.kosthaType || 'N/A' %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Eligibility</th>
+                            <td>
+                                Niruha Eligible: <strong>
+                                    <%= patient.poorvaKarma.niruhaEligibility?.isEligible ? 'Yes' : 'No' %>
+                                </strong> <br>
+                                Anuvasana Eligible: <strong>
+                                    <%= patient.poorvaKarma.anuvasanaEligibility?.isEligible ? 'Yes' : 'No' %>
+                                </strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Saama Nirama Lakshana (Symptoms present)</th>
+                            <td>
+                                <% const symptoms=[]; if (patient.poorvaKarma.saamaNirama?.srotorodha)
+                                    symptoms.push("Srotorodha"); if (patient.poorvaKarma.saamaNirama?.balabhransha)
+                                    symptoms.push("Balabhransha"); if (patient.poorvaKarma.saamaNirama?.gaurava)
+                                    symptoms.push("Gaurava"); if (patient.poorvaKarma.saamaNirama?.alasya)
+                                    symptoms.push("Alasya"); if (patient.poorvaKarma.saamaNirama?.anilaMudhata)
+                                    symptoms.push("Anila Mudhata"); if (patient.poorvaKarma.saamaNirama?.apaki)
+                                    symptoms.push("Apaki"); if (patient.poorvaKarma.saamaNirama?.nishthivana)
+                                    symptoms.push("Nishthivana"); if (patient.poorvaKarma.saamaNirama?.malaSanga)
+                                    symptoms.push("Mala Sanga"); if (patient.poorvaKarma.saamaNirama?.aruchi)
+                                    symptoms.push("Aruchi"); if (patient.poorvaKarma.saamaNirama?.klama)
+                                    symptoms.push("Klama"); %>
+                                    <%= symptoms.length> 0 ? symptoms.join(', ') : 'None recorded' %>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <% } else { %>
+                    <div class="section">
+                        <div class="section-title">Poorva Karma (Pre-Operative)</div>
+                        <p>No assessment recorded yet.</p>
+                    </div>
+                    <% } %>
+
+                        <!-- PRADHANA KARMA -->
+                        <% if (patient.pradhanaKarma) { %>
+                            <div class="section">
+                                <div class="section-title">Pradhana Karma (Operative)</div>
+                                <table>
+                                    <tr>
+                                        <th>Treatment Status</th>
+                                        <td><strong>
+                                                <%= patient.pradhanaKarma.treatmentStatus %>
+                                            </strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Pattern Name</th>
+                                        <td>
+                                            <%= patient.pradhanaKarma.patternName || 'N/A' %> (<%=
+                                                    patient.pradhanaKarma.totalDays || 0 %> Days)
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Sequence</th>
+                                        <td>
+                                            <%= (patient.pradhanaKarma.sequence || []).join(' -> ') %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Custom Notes on Dose</th>
+                                        <td>
+                                            <%= patient.pradhanaKarma.customNotesOnDose || 'None' %>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <% if (patient.pradhanaKarma.observation &&
+                                    patient.pradhanaKarma.observation.dailyObservations &&
+                                    patient.pradhanaKarma.observation.dailyObservations.length> 0) { %>
+                                    <div style="margin-top: 10px; font-weight: bold;">Daily Observations:</div>
+                                    <table style="font-size: 10px;">
+                                        <tr>
+                                            <th>Day</th>
+                                            <th>Type</th>
+                                            <th>Date/Time</th>
+                                            <th>Status</th>
+                                            <th>Dose</th>
+                                            <th>Notes</th>
+                                            <th>Paschata Karma (Vyapada)</th>
+                                        </tr>
+                                        <% patient.pradhanaKarma.observation.dailyObservations.forEach(obs=> { %>
+                                            <tr>
+                                                <td>Day <%= obs.day %>
+                                                </td>
+                                                <td>
+                                                    <%= obs.bastiType==='N' ? 'Niruha' : (obs.bastiType==='A'
+                                                        ? 'Anuvasana' : 'N/A' ) %>
+                                                </td>
+                                                <td>
+                                                    <%= obs.date ? new Date(obs.date).toLocaleDateString() : 'N/A' %>
+                                                        <br>
+                                                        <%= obs.timeAdministered || '' %>
+                                                </td>
+                                                <td>
+                                                    <%= obs.status %>
+                                                </td>
+                                                <td>
+                                                    <%= obs.dose || 'N/A' %>
+                                                </td>
+                                                <td>
+                                                    <%= obs.notes || 'N/A' %>
+                                                </td>
+                                                <td>
+                                                    <% if (obs.paschataKarma && obs.paschataKarma.vyapadaAndManagement) { %>
+                                                        Niruha: <%= obs.paschataKarma.vyapadaAndManagement.niruhaVyapada || 'None' %><br>
+                                                        Anuv: <%= obs.paschataKarma.vyapadaAndManagement.anuvasanaVyapada || 'None' %>
+                                                    <% } else { %>
+                                                        N/A
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                    </table>
+                                    <% } %>
+                            </div>
+                            <% } else { %>
+                                <div class="section">
+                                    <div class="section-title">Pradhana Karma (Operative)</div>
+                                    <p>No assessment recorded yet.</p>
+                                </div>
+                                <% } %>
+
+                                    <!-- PASCHATA KARMA -->
+                                    <% if (patient.paschataKarma) { %>
+                                        <div class="section">
+                                            <div class="section-title">Paschata Karma (Post-Operative)</div>
+                                            <table>
+                                                <tr>
+                                                    <th>Vyapada And Its Management</th>
+                                                    <td>
+                                                        Niruha Vyapada: <strong>
+                                                            <%= patient.paschataKarma.vyapadaAndManagement?.niruhaVyapada
+                                                                || 'None' %>
+                                                        </strong><br>
+                                                        Anuvasana Vyapada: <strong>
+                                                            <%= patient.paschataKarma.vyapadaAndManagement?.anuvasanaVyapada
+                                                                || 'None' %>
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <% } else { %>
+                                            <div class="section">
+                                                <div class="section-title">Paschata Karma (Post-Operative)</div>
+                                                <p>No assessment recorded yet.</p>
+                                            </div>
+                                            <% } %>
+
+</body>
+
+</html>
