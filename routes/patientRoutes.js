@@ -11,8 +11,8 @@ import { protect, isDoctor } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// router.use(protect);
-// router.use(isDoctor);
+router.use(protect);
+router.use(isDoctor);
 
 router.route('/')
     .post(createPatient)
