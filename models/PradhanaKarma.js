@@ -5,7 +5,7 @@ const dailyObservationSchema = new mongoose.Schema({
 
   // Schedule state fields
   date: { type: Date },
-  bastiType: { type: String, enum: ['A', 'N'] },
+  bastiType: { type: String, enum: ['A', 'N', 'MB', 'YB'] },
   status: { type: String, enum: ['PENDING', 'COMPLETED', 'MISSED'], default: 'PENDING' },
   dose: { type: String }, // Calculated dose used for this session
   timeAdministered: { type: String },

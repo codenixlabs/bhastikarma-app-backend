@@ -19,12 +19,12 @@ const getOrCreatePradhanaKarma = async (patientId, doctorId) => {
 export const createOrUpdatePradhanaKarma = async (req, res) => {
     try {
         const pk = await getOrCreatePradhanaKarma(req.params.patientId, req.user._id);
-        
-        const { 
+
+        const {
             diseaseId,
             bastiPatternCode,
             bastiFormulationId,
-            customNotesOnDose, 
+            customNotesOnDose,
             observation,
             startDate,
             treatmentStatus
@@ -44,19 +44,19 @@ export const createOrUpdatePradhanaKarma = async (req, res) => {
         if (customNotesOnDose) pk.customNotesOnDose = customNotesOnDose;
         if (startDate) pk.startDate = startDate;
         if (treatmentStatus) pk.treatmentStatus = treatmentStatus;
-        
+
         // Generate schedule if startDate and sequence are available, and schedule hasn't been generated yet
-        if (pk.startDate && pk.sequence && pk.sequence.length > 0 && 
+        if (pk.startDate && pk.sequence && pk.sequence.length > 0 &&
             (!pk.observation || !pk.observation.dailyObservations || pk.observation.dailyObservations.length === 0)) {
-            
+
             if (!pk.observation) pk.observation = { dailyObservations: [] };
             if (!pk.observation.dailyObservations) pk.observation.dailyObservations = [];
-            
+
             const start = new Date(pk.startDate);
             for (let i = 0; i < pk.sequence.length; i++) {
                 const sessionDate = new Date(start);
                 sessionDate.setDate(start.getDate() + i);
-                
+
                 pk.observation.dailyObservations.push({
                     day: i + 1,
                     date: sessionDate,
@@ -65,7 +65,7 @@ export const createOrUpdatePradhanaKarma = async (req, res) => {
                 });
             }
         }
-        
+
         if (observation) {
             if (!pk.observation) pk.observation = {};
             if (observation.adanakala) pk.observation.adanakala = observation.adanakala;
@@ -87,13 +87,13 @@ export const createOrUpdatePradhanaKarma = async (req, res) => {
 export const addDailyObservation = async (req, res) => {
     try {
         const pk = await getOrCreatePradhanaKarma(req.params.patientId, req.user._id);
-        
+
         const observationData = req.body;
-        
+
         if (!observationData.day) {
-             return res.status(400).json({ success: false, message: 'Day number is required' });
+            return res.status(400).json({ success: false, message: 'Day number is required' });
         }
-        
+
         if (!pk.observation) {
             pk.observation = { dailyObservations: [] };
         } else if (!pk.observation.dailyObservations) {
@@ -102,7 +102,7 @@ export const addDailyObservation = async (req, res) => {
 
         // Check if observation for this day already exists
         const existingDayIndex = pk.observation.dailyObservations.findIndex(obs => obs.day === observationData.day);
-        
+
         if (existingDayIndex !== -1) {
             // Update existing day
             pk.observation.dailyObservations[existingDayIndex] = {
@@ -113,7 +113,7 @@ export const addDailyObservation = async (req, res) => {
             // Add new day
             pk.observation.dailyObservations.push(observationData);
         }
-        
+
         // Update treatmentStatus if a session is marked completed
         if (observationData.status === 'COMPLETED' && pk.treatmentStatus === 'PLANNED') {
             pk.treatmentStatus = 'IN_PROGRESS';
@@ -132,7 +132,7 @@ export const addDailyObservation = async (req, res) => {
 export const updateDailyObservation = async (req, res) => {
     try {
         const pk = await PradhanaKarma.findOne({ patientId: req.params.patientId, doctorId: req.user._id });
-        
+
         if (!pk || !pk.observation || !pk.observation.dailyObservations) {
             return res.status(404).json({ success: false, message: 'Pradhana Karma or observations not found' });
         }
@@ -150,7 +150,7 @@ export const updateDailyObservation = async (req, res) => {
             ...req.body,
             day: day // ensure day isn't changed
         };
-        
+
         // Update treatmentStatus if a session is marked completed
         if (req.body.status === 'COMPLETED' && pk.treatmentStatus === 'PLANNED') {
             pk.treatmentStatus = 'IN_PROGRESS';
@@ -172,7 +172,7 @@ export const markPradhanaKarmaCompleted = async (req, res) => {
         if (!patient) {
             return res.status(404).json({ success: false, message: 'Patient not found' });
         }
-        
+
         // Ensure assessmentStatus exists
         if (!patient.assessmentStatus) {
             patient.assessmentStatus = {};
@@ -180,11 +180,11 @@ export const markPradhanaKarmaCompleted = async (req, res) => {
 
         patient.assessmentStatus.pradhanaKarmaCompleted = true;
         await patient.save();
-        
-        res.status(200).json({ 
-            success: true, 
-            message: 'Pradhana Karma marked as completed', 
-            data: patient.assessmentStatus 
+
+        res.status(200).json({
+            success: true,
+            message: 'Pradhana Karma marked as completed',
+            data: patient.assessmentStatus
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -206,7 +206,7 @@ export const getPradhanaKarma = async (req, res) => {
         if (!pk) {
             return res.status(404).json({ success: false, message: 'Pradhana Karma record not found for this patient' });
         }
-        
+
         if (pk.observation && pk.observation.dailyObservations) {
             pk.observation.dailyObservations.sort((a, b) => a.day - b.day);
         }
