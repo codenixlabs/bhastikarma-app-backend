@@ -10,6 +10,7 @@ import paschatKarmaRoutes from "./routes/paschatKarmaRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import masterDataRoutes from "./routes/masterDataRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
+import followUpRoutes from "./routes/followUpRoutes.js";
 import rateLimit from "express-rate-limit";
 
 const app = express();
@@ -47,6 +48,7 @@ app.use("/api/paschata-karma", paschatKarmaRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/master", masterDataRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/follow-up", followUpRoutes);
 
 app.get("/", (req, res) => {
     return res.json({
