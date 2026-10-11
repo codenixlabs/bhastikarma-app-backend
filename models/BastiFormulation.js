@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+﻿import mongoose from 'mongoose';
 
 const bastiFormulationSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true }, // 'basti_pancha_tikta_nb_ab'
   name: { type: String, required: true }, // 'Pancha tikta niruha'
-  rawName: { type: String },
-  bastiType: { type: String }, // 'Niruha Basti + Anuvasana Basti'
+  rawName: { type: String }, // 'Pancha tikta niruha. (NB+AB)'
+  bastiType: { type: String, default: 'Niruha Basti + Anuvasana Basti' }, // 'Niruha Basti + Anuvasana Basti'
   formulationDetails: { type: String },
   ingredientsRaw: { type: String },
   formulationRecipeRaw: { type: String },
@@ -15,6 +15,9 @@ const bastiFormulationSchema = new mongoose.Schema({
   diseaseIds: [{ type: String, ref: 'Disease' }],
   sourceText: { type: String },
   recipeCompleteness: { type: String },
+  isCustom: { type: Boolean, default: false },
+  patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient' },
+  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   ingredients: [{
     id: { type: String },
     name: { type: String },
