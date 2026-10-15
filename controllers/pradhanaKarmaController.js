@@ -1,6 +1,9 @@
+import mongoose from 'mongoose';
 import PradhanaKarma from '../models/PradhanaKarma.js';
 import Patient from '../models/Patient.js';
 import BastiPattern from '../models/BastiPattern.js';
+import BastiFormulation from '../models/BastiFormulation.js';
+import Disease from '../models/Disease.js';
 
 // Helper function to get or create the PradhanaKarma document for a patient
 const getOrCreatePradhanaKarma = async (patientId, doctorId) => {
@@ -33,7 +36,9 @@ export const createOrUpdatePradhanaKarma = async (req, res) => {
         if (diseaseId) pk.diseaseId = diseaseId;
         if (bastiPatternCode) {
             pk.bastiPatternCode = bastiPatternCode;
-            const pattern = await BastiPattern.findOne({ code: bastiPatternCode });
+            const pattern = await BastiPattern.findOne({
+                code: new RegExp(`^${bastiPatternCode}$`, 'i')
+            });
             if (pattern) {
                 pk.patternName = pattern.name;
                 pk.totalDays = pattern.totalDays;
@@ -41,6 +46,7 @@ export const createOrUpdatePradhanaKarma = async (req, res) => {
             }
         }
         if (bastiFormulationId) pk.bastiFormulationId = bastiFormulationId;
+
         if (customNotesOnDose) pk.customNotesOnDose = customNotesOnDose;
         if (startDate) pk.startDate = startDate;
         if (treatmentStatus) pk.treatmentStatus = treatmentStatus;
@@ -197,14 +203,33 @@ export const markPradhanaKarmaCompleted = async (req, res) => {
 export const getPradhanaKarma = async (req, res) => {
     try {
         const { patientId } = req.params;
-        const pk = await PradhanaKarma.findOne({ patientId })
+        let pk = await PradhanaKarma.findOne({ patientId })
             .populate('patientId', 'demographics.fullName')
             .populate('doctorId', 'name')
-            .populate('diseaseId', 'diseaseName')
-            .populate('bastiFormulationId', 'formulationName');
+            .lean();
 
         if (!pk) {
             return res.status(404).json({ success: false, message: 'Pradhana Karma record not found for this patient' });
+        }
+
+        if (pk.bastiFormulationId) {
+            const formulationQuery = mongoose.isValidObjectId(pk.bastiFormulationId)
+                ? { $or: [{ _id: pk.bastiFormulationId }, { id: pk.bastiFormulationId }] }
+                : { id: pk.bastiFormulationId };
+            pk.bastiFormulation = await BastiFormulation.findOne(formulationQuery).lean();
+        }
+
+        if (pk.bastiPatternCode) {
+            pk.bastiPattern = await BastiPattern.findOne({
+                code: new RegExp(`^${pk.bastiPatternCode}$`, 'i')
+            }).lean();
+        }
+
+        if (pk.diseaseId) {
+            const diseaseQuery = mongoose.isValidObjectId(pk.diseaseId)
+                ? { $or: [{ _id: pk.diseaseId }, { id: pk.diseaseId }] }
+                : { id: pk.diseaseId };
+            pk.diseaseDetails = await Disease.findOne(diseaseQuery).lean();
         }
 
         if (pk.observation && pk.observation.dailyObservations) {
